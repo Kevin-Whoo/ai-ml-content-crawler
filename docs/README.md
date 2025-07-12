@@ -25,6 +25,7 @@ Welcome to the comprehensive documentation for the AI/ML Content Crawler. This g
   - Data flow
   - Design patterns
 
+### Development Reports
 - **[Code Quality Analysis](analysis/CODE_QUALITY_ANALYSIS.md)** - Detailed code quality metrics
   - Complexity analysis
   - Best practices review
@@ -36,6 +37,27 @@ Welcome to the comprehensive documentation for the AI/ML Content Crawler. This g
   - Performance metrics
   - Before/after comparisons
   - Future optimizations
+
+- **[Performance Report](analysis/PERFORMANCE_REPORT.md)** - Execution time analysis
+  - Concurrent execution improvements
+  - Security fixes impact
+  - Memory efficiency gains
+
+- **[Final Audit Report](analysis/FINAL_AUDIT_REPORT.md)** - Comprehensive project audit
+  - Critical issues found
+  - Security assessment
+  - Configuration review
+  - Recommendations
+
+- **[Bug Report](analysis/BUG_REPORT.md)** - Known issues and fixes
+  - Date filtering issues
+  - Thread safety concerns
+  - Requirements corrections
+
+- **[Date Handling Requirements](analysis/DATE_HANDLING_REQUIREMENTS.md)** - Date processing specifications
+  - Implementation requirements
+  - Format handling
+  - Edge cases
 
 ## 🔗 Quick Links
 

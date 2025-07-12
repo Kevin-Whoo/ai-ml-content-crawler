@@ -430,3 +430,77 @@ ai-ml-crawler
 - Branch: `remove-obsolete-files`
 - Title: "Remove obsolete & generated files"
 - URL: https://github.com/Kevin-Whoo/ai-ml-content-crawler/pull/new/remove-obsolete-files
+
+### Task Completion - Streamline Dependency & Build Configuration (2025-01-13)
+
+✅ **COMPLETED: Step 7 - Streamline dependency & build configuration**
+
+**Changes made:**
+1. **requirements.txt verification**:
+   - Confirmed no standard library items present (no `asyncio`, etc.)
+   - All 11 dependencies are third-party packages
+   - No cleanup needed
+
+2. **Enhanced pyproject.toml**:
+   - Added `setuptools-scm` for automatic versioning from git tags
+   - Updated dependencies from requirements.txt
+   - Added comprehensive project metadata
+   - Changed version to dynamic (handled by setuptools-scm)
+   - Added additional classifiers and keywords
+   - Added optional dependencies for docs
+   - Added second CLI entry point `crawl-ai-ml`
+   - Fixed package discovery configuration for src layout
+
+3. **Configured setuptools_scm**:
+   - Auto-generates version from git tags
+   - Writes version to `src/ai_ml_crawler/_version.py`
+   - Updated `__init__.py` to import version from `_version.py`
+   - Added `_version.py` to .gitignore
+
+4. **Added tool configurations**:
+   - **Black**: Line length 100, Python 3.8-3.12 support
+   - **Ruff**: Comprehensive linting rules (E, W, F, I, B, C4, UP, ARG, SIM)
+   - **Mypy**: Strict type checking with per-module overrides
+   - **pytest**: Test discovery and configuration
+   - **Coverage**: Test coverage configuration
+
+5. **Created development helpers**:
+   - `.pre-commit-config.yaml`: Automated code quality checks
+   - `Makefile`: Common development tasks (install, lint, format, test, build)
+
+**Tool Configuration Summary:**
+- ✅ **Black**: Format with 100 char line length
+- ✅ **Ruff**: Lint with pycodestyle, pyflakes, isort, and more
+- ✅ **Mypy**: Type check with strict settings
+- ✅ **Pre-commit**: Automated checks on git commit
+- ✅ **Coverage**: Track test coverage with exclusions
+
+**Development Workflow:**
+```bash
+# Install development environment
+make install-dev
+
+# Format code
+make format
+
+# Run linters
+make lint
+
+# Type check
+make type-check
+
+# Run tests with coverage
+make test-cov
+
+# Build package
+make build
+```
+
+**Files created/modified:**
+- `pyproject.toml` - Enhanced with all configurations
+- `src/ai_ml_crawler/__init__.py` - Updated for setuptools_scm
+- `.gitignore` - Added _version.py
+- `.pre-commit-config.yaml` - Created pre-commit hooks
+- `Makefile` - Created development tasks
+
+**Result**: The project now has a modern Python build configuration with automated versioning, comprehensive linting/formatting tools, and streamlined development workflow

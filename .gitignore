@@ -52,6 +52,9 @@ Thumbs.db
 htmlcov/
 coverage.xml
 
+# setuptools_scm generated version file
+src/ai_ml_crawler/_version.py
+
 # Temporary files
 *.tmp
 *.temp

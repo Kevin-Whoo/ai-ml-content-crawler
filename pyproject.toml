@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=61.0", "setuptools-scm[toml]>=7.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "ai-ml-crawler"
-version = "1.0.0"
+dynamic = ["version"]
 description = "An intelligent web crawler that gathers the latest AI/ML research papers, blog posts, and repository updates"
 readme = "README.md"
 requires-python = ">=3.8"
@@ -12,36 +12,57 @@ license = {text = "MIT"}
 authors = [
     {name = "AI/ML Crawler Team"},
 ]
-keywords = ["crawler", "ai", "ml", "research", "web-scraping"]
+maintainers = [
+    {name = "AI/ML Crawler Team"},
+]
+keywords = ["crawler", "ai", "ml", "research", "web-scraping", "arxiv", "github", "huggingface"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
     "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
+# Dependencies from requirements.txt
 dependencies = [
-    "aiohttp>=3.8.0",
-    "beautifulsoup4>=4.11.0",
-    "httpx>=0.24.0",
-    "playwright>=1.35.0",
+    "requests>=2.31.0",
+    "beautifulsoup4>=4.12.0",
+    "lxml>=4.9.0",
+    "feedparser>=6.0.0",
     "python-dateutil>=2.8.0",
+    "PyGithub>=1.59.0",
+    "selenium>=4.15.0",
+    "webdriver-manager>=4.0.0",
+    "newspaper3k>=0.2.8",
     "python-dotenv>=1.0.0",
-    "rich>=13.0.0",
+    "aiohttp>=3.9.0",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=7.0.0",
+    "pytest>=7.3.0",
     "pytest-asyncio>=0.21.0",
-    "black>=23.0.0",
-    "flake8>=6.0.0",
-    "mypy>=1.0.0",
+    "pytest-cov>=4.1.0",
+    "black>=23.3.0",
+    "ruff>=0.1.0",
+    "mypy>=1.4.0",
+    "types-requests>=2.31.0",
+    "types-python-dateutil>=2.8.0",
+    "pre-commit>=3.3.0",
+]
+docs = [
+    "sphinx>=7.0.0",
+    "sphinx-rtd-theme>=1.3.0",
+    "sphinx-autodoc-typehints>=1.23.0",
 ]
 
 [project.urls]
@@ -49,12 +70,150 @@ Homepage = "https://github.com/yourusername/ai-ml-crawler"
 Documentation = "https://github.com/yourusername/ai-ml-crawler/tree/main/docs"
 Repository = "https://github.com/yourusername/ai-ml-crawler"
 Issues = "https://github.com/yourusername/ai-ml-crawler/issues"
+Changelog = "https://github.com/yourusername/ai-ml-crawler/blob/main/CHANGELOG.md"
 
 [project.scripts]
 ai-ml-crawler = "ai_ml_crawler.cli:main"
+crawl-ai-ml = "ai_ml_crawler.main:main"
 
 [tool.setuptools]
-packages = ["ai_ml_crawler", "ai_ml_crawler.crawlers", "ai_ml_crawler.utils"]
+package-dir = {"": "src"}
+packages = {find = {where = ["src"], include = ["ai_ml_crawler*"]}}
 
 [tool.setuptools.package-data]
 ai_ml_crawler = ["py.typed"]
+
+[tool.setuptools_scm]
+# Version is determined from git tags
+write_to = "src/ai_ml_crawler/_version.py"
+version_scheme = "post-release"
+local_scheme = "no-local-version"
+
+[tool.black]
+line-length = 100
+target-version = ['py38', 'py39', 'py310', 'py311', 'py312']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.ruff]
+line-length = 100
+target-version = "py38"
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "B",    # flake8-bugbear
+    "C4",   # flake8-comprehensions
+    "UP",   # pyupgrade
+    "ARG",  # flake8-unused-arguments
+    "SIM",  # flake8-simplify
+]
+ignore = [
+    "E501",  # line too long (handled by black)
+    "B008",  # do not perform function calls in argument defaults
+    "W191",  # indentation contains tabs
+]
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401", "F403"]
+"tests/*" = ["ARG", "S101"]
+
+[tool.ruff.isort]
+known-first-party = ["ai_ml_crawler"]
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = false
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+follow_imports = "normal"
+strict_optional = true
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = [
+    "newspaper.*",
+    "webdriver_manager.*",
+    "selenium.*",
+    "feedparser.*",
+]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short --strict-markers"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+]
+
+[tool.coverage.run]
+source = ["src/ai_ml_crawler"]
+omit = [
+    "*/tests/*",
+    "*/__init__.py",
+    "*/migrations/*",
+    "*/_version.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@abstractmethod",
+]
