@@ -1,0 +1,14 @@
+{
+  "377dbcdafc5d17c231ba3f4c927f498995dc22f32ace6c1bfd20338bda458ce9": {
+    "timestamp": "2025-07-12T18:53:03.378917",
+    "ttl": 2592000,
+    "url": "https://www.anthropic.com/news",
+    "size": 574858
+  },
+  "b861c806f89a1911df77f472be1b3297feb2b8cfb39a650352b296152ad2c222": {
+    "timestamp": "2025-07-12T18:53:04.043192",
+    "ttl": 2592000,
+    "url": "https://www.anthropic.com/research",
+    "size": 278745
+  }
+}

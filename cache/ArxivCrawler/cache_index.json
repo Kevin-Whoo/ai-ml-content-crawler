@@ -1,0 +1,50 @@
+{
+  "ea480ebf9b1655bf29449e38a16510730a4e0233cefd2ee94f64ea4dc006a1bb": {
+    "timestamp": "2025-07-12T20:43:22.355454",
+    "ttl": 1296000,
+    "url": "http://export.arxiv.org/api/query?search_query=all%3Asmart+grid+AND+%28AI+OR+machine+learning+OR+deep+learning%29&start=0&max_results=20&sortBy=submittedDate&sortOrder=descending",
+    "size": 48793
+  },
+  "d27499002ecabb4061281bbfdbc695177ad19a21fe18f2e0d98425332d1915ee": {
+    "timestamp": "2025-07-12T20:43:23.287828",
+    "ttl": 1296000,
+    "url": "http://export.arxiv.org/api/query?search_query=all%3Apower+systems+AND+%28AI+OR+neural+network+OR+optimization%29&start=0&max_results=20&sortBy=submittedDate&sortOrder=descending",
+    "size": 50285
+  },
+  "ea2fbfc3c4ec3fdcd0a212181140a0bda8900614499fa64c84fa4b899e081f44": {
+    "timestamp": "2025-07-12T20:43:24.204772",
+    "ttl": 1296000,
+    "url": "http://export.arxiv.org/api/query?search_query=all%3Arenewable+energy+AND+%28forecasting+OR+prediction+OR+AI%29&start=0&max_results=20&sortBy=submittedDate&sortOrder=descending",
+    "size": 110095
+  },
+  "334f7d83bf24099f39b76a355f7794150d90ec3b97620e9ba1884cad47769fff": {
+    "timestamp": "2025-07-12T20:43:25.448700",
+    "ttl": 1296000,
+    "url": "http://export.arxiv.org/api/query?search_query=all%3Aenergy+management+AND+%28agent+OR+AI+OR+automation%29&start=0&max_results=20&sortBy=submittedDate&sortOrder=descending",
+    "size": 13633
+  },
+  "eb0007e9ef4e1fa29aa9f43c4aec7f080014a21fcbe155ca4cbc9c5f786536a3": {
+    "timestamp": "2025-07-12T20:43:26.622083",
+    "ttl": 1296000,
+    "url": "http://export.arxiv.org/api/query?search_query=all%3Amicrogrid+AND+%28AI+OR+machine+learning+OR+control%29&start=0&max_results=20&sortBy=submittedDate&sortOrder=descending",
+    "size": 49563
+  },
+  "95df1946141f66254a92bac1b2e3bcc4876978731d71da3de97e03915299984c": {
+    "timestamp": "2025-07-12T20:43:27.475498",
+    "ttl": 1296000,
+    "url": "http://export.arxiv.org/api/query?search_query=all%3Aenergy+storage+AND+%28optimization+OR+AI+OR+prediction%29&start=0&max_results=20&sortBy=submittedDate&sortOrder=descending",
+    "size": 51014
+  },
+  "e1d284676d0704829643423f4b29881c0a214e47a51cd12e4854f65b960a8d16": {
+    "timestamp": "2025-07-12T20:43:28.378969",
+    "ttl": 1296000,
+    "url": "http://export.arxiv.org/api/query?search_query=all%3Ademand+response+AND+%28AI+OR+machine+learning+OR+smart%29&start=0&max_results=20&sortBy=submittedDate&sortOrder=descending",
+    "size": 53051
+  },
+  "a5961dda59b51317c533e542527427a9eff72c56952919693484375de3482a2e": {
+    "timestamp": "2025-07-12T20:45:18.226348",
+    "ttl": 1296000,
+    "url": "http://export.arxiv.org/api/query?search_query=all%3Aenergy+AND+%28artificial+intelligence+OR+machine+learning+OR+AI%29&start=0&max_results=20&sortBy=submittedDate&sortOrder=descending",
+    "size": 24387
+  }
+}
