@@ -1,0 +1,60 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ai-ml-crawler"
+version = "1.0.0"
+description = "An intelligent web crawler that gathers the latest AI/ML research papers, blog posts, and repository updates"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "AI/ML Crawler Team"},
+]
+keywords = ["crawler", "ai", "ml", "research", "web-scraping"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "aiohttp>=3.8.0",
+    "beautifulsoup4>=4.11.0",
+    "httpx>=0.24.0",
+    "playwright>=1.35.0",
+    "python-dateutil>=2.8.0",
+    "python-dotenv>=1.0.0",
+    "rich>=13.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "black>=23.0.0",
+    "flake8>=6.0.0",
+    "mypy>=1.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/yourusername/ai-ml-crawler"
+Documentation = "https://github.com/yourusername/ai-ml-crawler/tree/main/docs"
+Repository = "https://github.com/yourusername/ai-ml-crawler"
+Issues = "https://github.com/yourusername/ai-ml-crawler/issues"
+
+[project.scripts]
+ai-ml-crawler = "ai_ml_crawler.cli:main"
+
+[tool.setuptools]
+packages = ["ai_ml_crawler", "ai_ml_crawler.crawlers", "ai_ml_crawler.utils"]
+
+[tool.setuptools.package-data]
+ai_ml_crawler = ["py.typed"]

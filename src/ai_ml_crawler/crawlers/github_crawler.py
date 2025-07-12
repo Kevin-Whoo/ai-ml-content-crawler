@@ -91,9 +91,9 @@ class GitHubCrawler(BaseCrawler):
         
         for repo in repos:
             try:
-                # Check if repository was updated recently
-                updated_at = datetime.fromisoformat(repo['updated_at'].replace('Z', '+00:00'))
-                if not self._is_recent(updated_at):
+                # Check if repository was created recently
+                created_at = datetime.fromisoformat(repo['created_at'].replace('Z', '+00:00'))
+                if not self._is_recent(created_at):
                     continue
                 
                 # Extract repository information
@@ -118,7 +118,7 @@ class GitHubCrawler(BaseCrawler):
                 repo_item = self._create_item(
                     title=title,
                     url=url,
-                    date=repo['updated_at'],
+                    date=repo['created_at'],
                     summary=summary,
                     content=description,
                     source="GitHub",
@@ -132,7 +132,8 @@ class GitHubCrawler(BaseCrawler):
                     'language': language,
                     'topics': topics,
                     'owner': repo['owner']['login'],
-                    'created_at': repo['created_at']
+                    'created_at': repo['created_at'],
+                    'last_updated': repo['updated_at']
                 })
                 
                 results.append(repo_item)

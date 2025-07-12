@@ -6,10 +6,14 @@ import re
 from typing import List, Dict, Any, Optional
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
+from .date_extractor import DateExtractor
 
 
 class BlogCrawlerHelper:
     """Helper class for extracting blog content from modern websites"""
+    
+    def __init__(self):
+        self.date_extractor = DateExtractor()
     
     @staticmethod
     def find_blog_posts(soup: BeautifulSoup, domain: str) -> List[Dict[str, Any]]:
@@ -65,7 +69,7 @@ class BlogCrawlerHelper:
                     posts.append({
                         'title': link.get_text().strip(),
                         'url': href if href.startswith('http') else f"https://openai.com{href}",
-                        'date': datetime.now().isoformat(),
+                        'date': "Unknown",  # Will be extracted later
                         'summary': text[:200]
                     })
         
@@ -102,7 +106,7 @@ class BlogCrawlerHelper:
                         posts.append({
                             'title': link.get_text().strip(),
                             'url': href if href.startswith('http') else f"https://www.anthropic.com{href}",
-                            'date': datetime.now().isoformat(),
+                            'date': "Unknown",  # Will be extracted later
                             'summary': text[:200]
                         })
                         
@@ -132,7 +136,7 @@ class BlogCrawlerHelper:
                 posts.append({
                     'title': link.get_text().strip(),
                     'url': href if href.startswith('http') else f"https://ai.meta.com{href}",
-                    'date': datetime.now().isoformat(),
+                    'date': "Unknown",  # Will be extracted later
                     'summary': text[:200]
                 })
         
@@ -155,7 +159,7 @@ class BlogCrawlerHelper:
                     posts.append({
                         'title': title_elem.get_text().strip(),
                         'url': link_elem.get('href', ''),
-                        'date': datetime.now().isoformat(),
+                        'date': "Unknown",  # Will be extracted later
                         'summary': ''
                     })
             except:
@@ -185,7 +189,7 @@ class BlogCrawlerHelper:
                     posts.append({
                         'title': link.get_text().strip(),
                         'url': link.get('href', ''),
-                        'date': datetime.now().isoformat(),
+                        'date': "Unknown",  # Will be extracted later
                         'summary': ''
                     })
                     

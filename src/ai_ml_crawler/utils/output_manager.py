@@ -9,7 +9,7 @@ from datetime import datetime
 from typing import List, Dict, Any
 import xml.etree.ElementTree as ET
 
-from config import CrawlerConfig
+from ai_ml_crawler.config import CrawlerConfig
 
 
 class OutputManager:
@@ -17,7 +17,11 @@ class OutputManager:
     
     def __init__(self, config: CrawlerConfig):
         self.config = config
-        self.timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        self.timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+    
+    def now_utc(self) -> datetime:
+        """Helper method to get current UTC datetime"""
+        return datetime.utcnow()
     
     def save_results(self, results: Dict[str, List[Dict[str, Any]]]) -> None:
         """Save results as optimized markdown report"""
@@ -45,7 +49,7 @@ class OutputManager:
         # Header section
         content_parts.extend([
             "# 🤖 Latest AI/ML Resources Report\n",
-            f"**Generated:** {datetime.now().strftime('%B %d, %Y at %H:%M UTC')}\n",
+            f"**Generated:** {self.now_utc().strftime('%B %d, %Y at %H:%M UTC')}\n",
             f"**Total Resources:** {total_items}\n\n",
             "---\n\n"
         ])
@@ -196,7 +200,7 @@ class OutputManager:
         with open(filename, 'w', encoding='utf-8') as f:
             f.write("AI/ML Content Crawl Summary\n")
             f.write("=" * 50 + "\n\n")
-            f.write(f"Crawl completed: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
+            f.write(f"Crawl completed: {self.now_utc().strftime('%Y-%m-%d %H:%M:%S UTC')}\n\n")
             
             # Overall stats
             total_items = sum(len(items) for items in results.values())

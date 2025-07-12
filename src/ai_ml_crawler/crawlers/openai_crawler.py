@@ -10,10 +10,41 @@ import re
 
 from .base_crawler import BaseCrawler
 from .blog_helper import BlogCrawlerHelper
+from .date_extractor import DateExtractionMixin
 
 
-class OpenAICrawler(BaseCrawler):
+class OpenAICrawler(BaseCrawler, DateExtractionMixin):
     """Crawler for OpenAI blog and research content"""
+    
+    def _parse_date_safe(self, raw_date: str) -> str:
+        """Parse date string safely and convert to ISO format with UTC timezone"""
+        if not raw_date or not raw_date.strip():
+            return "Unknown"
+        
+        # Common date formats to try
+        date_formats = [
+            '%Y-%m-%dT%H:%M:%S%z',  # ISO with timezone
+            '%Y-%m-%dT%H:%M:%SZ',   # ISO with Z
+            '%Y-%m-%dT%H:%M:%S',    # ISO without timezone
+            '%Y-%m-%d %H:%M:%S',    # Standard datetime
+            '%Y-%m-%d',             # Date only
+            '%B %d, %Y',            # Month day, year
+            '%b %d, %Y',            # Short month day, year
+            '%d %B %Y',             # Day month year
+            '%d %b %Y',             # Day short month year
+        ]
+        
+        raw_date = raw_date.strip()
+        
+        for fmt in date_formats:
+            try:
+                dt = datetime.strptime(raw_date, fmt)
+                return dt.isoformat(timespec='seconds') + 'Z'
+            except ValueError:
+                continue
+        
+        # If no format matches, return "Unknown"
+        return "Unknown"
     
     async def crawl(self) -> List[Dict[str, Any]]:
         # TODO: Add date filtering - filter items by self._is_recent(date) -> List[Dict[str, Any]]:
@@ -60,7 +91,7 @@ class OpenAICrawler(BaseCrawler):
                 elements = soup.select(selector)[:10]  # Limit per selector
                 for element in elements:
                     try:
-                        post_data = self._extract_post_from_element(element, blog_url)
+                        post_data = self._extract_post_from_element(element, blog_url, soup)
                         if post_data:
                             posts.append(post_data)
                     except Exception as e:
@@ -72,7 +103,7 @@ class OpenAICrawler(BaseCrawler):
         
         return posts
     
-    def _extract_post_from_element(self, element, base_url: str) -> Dict[str, Any]:
+    def _extract_post_from_element(self, element, base_url: str, soup=None) -> Dict[str, Any]:
         """Extract post data from HTML element"""
         # Find title
         title = ""
@@ -115,16 +146,37 @@ class OpenAICrawler(BaseCrawler):
             if p_elem:
                 summary = p_elem.get_text(strip=True)
         
-        # Find date
+        # Find date - try multiple strategies in order
         date_str = ""
-        date_elem = element.find(['time', 'span'], class_=re.compile(r'date|time'))
-        if date_elem:
-            date_str = date_elem.get('datetime') or date_elem.get_text(strip=True)
+        
+        # 1. Try <time datetime> attribute
+        time_elem = element.find('time')
+        if time_elem and time_elem.get('datetime'):
+            date_str = time_elem.get('datetime')
+        
+        # 2. Try meta property article:published_time
+        if not date_str:
+            meta_elem = element.find('meta', property='article:published_time')
+            if meta_elem:
+                date_str = meta_elem.get('content', '')
+        
+        # 3. Try visible date text in time or date-related elements
+        if not date_str:
+            date_elem = element.find(['time', 'span'], class_=re.compile(r'date|time'))
+            if date_elem:
+                date_str = date_elem.get_text(strip=True)
+        
+        # If no date found yet, use the date extractor with full soup context
+        if not date_str and soup:
+            parsed_date = self.extract_publication_date(soup, url)
+        else:
+            # Parse the date safely
+            parsed_date = self._parse_date_safe(date_str)
         
         post = self._create_item(
             title=title,
             url=url,
-            date=date_str or datetime.now().isoformat(),
+            date=parsed_date,
             summary=summary[:200] + "..." if len(summary) > 200 else summary,
             source="OpenAI Blog",
             tags=["openai", "blog", "live"]
@@ -152,16 +204,21 @@ class OpenAICrawler(BaseCrawler):
                     title = data.get('headline', '')
                     url = data.get('url', '')
                     description = data.get('description', '')
-                    date = data.get('datePublished', '')
+                    
+                    # Try multiple date fields in JSON-LD
+                    date_str = data.get('datePublished', '') or data.get('dateCreated', '') or data.get('dateModified', '')
                     
                     if title and url:
+                        # Parse the date safely
+                        parsed_date = self._parse_date_safe(date_str)
+                        
                         post = self._create_item(
                             title=title,
                             url=url if url.startswith('http') else f"https://openai.com{url}",
-                            date=date or datetime.now().isoformat(),
-                            summary=description,
+                            date=parsed_date,
+                            summary=description[:200] + "..." if len(description) > 200 else description,
                             source="OpenAI Blog",
-                            tags=["openai", "blog", "structured"]
+                            tags=["openai", "blog"]
                         )
                         posts.append(post)
                         
@@ -213,7 +270,7 @@ class OpenAICrawler(BaseCrawler):
             elements = soup.select(selector)[:5]  # Limit per selector
             for element in elements:
                 try:
-                    item_data = self._extract_post_from_element(element, base_url)
+                    item_data = self._extract_post_from_element(element, base_url, soup)
                     if item_data:
                         # Tag as news/update
                         item_data['tags'] = ["openai", "news", "update"]
@@ -261,7 +318,7 @@ class OpenAICrawler(BaseCrawler):
             post = self._create_item(
                 title=title,
                 url=url,
-                date=datetime.now().isoformat(),
+                date="Unknown",
                 summary=f"Discover the latest from OpenAI: {title.split(':')[0]}",
                 source="OpenAI Blog",
                 tags=["openai", "blog", "recent"]
@@ -290,7 +347,7 @@ class OpenAICrawler(BaseCrawler):
                     title = post_data.get('title', '').strip()
                     url = post_data.get('url', '')
                     summary = post_data.get('summary', '')
-                    date_str = post_data.get('date', datetime.now().isoformat())
+                    date_str = post_data.get('date', "")
                     
                     # Skip if no meaningful content
                     if not title or not url or len(title) < 5:
@@ -300,10 +357,13 @@ class OpenAICrawler(BaseCrawler):
                     if url.startswith('/'):
                         url = 'https://openai.com' + url
                     
+                    # Parse the date safely
+                    parsed_date = self._parse_date_safe(date_str)
+                    
                     post = self._create_item(
                         title=title,
                         url=url,
-                        date=date_str,
+                        date=parsed_date,
                         summary=summary,
                         source="OpenAI Blog",
                         tags=["openai", "blog"]
@@ -328,7 +388,7 @@ class OpenAICrawler(BaseCrawler):
             post = self._create_item(
                 title=title,
                 url=url,
-                date=datetime.now().isoformat(),
+                date="Unknown",
                 summary=f"Discover the latest from OpenAI: {title.split(':')[0]}",
                 source="OpenAI Blog",
                 tags=["openai", "blog", "recent"]
@@ -369,11 +429,28 @@ class OpenAICrawler(BaseCrawler):
                 if url.startswith('/'):
                     url = 'https://openai.com' + url
                 
-                # Extract date
-                date_elem = element.find(['time', 'span'], class_=re.compile(r'date|time'))
+                # Extract date - try multiple strategies in order
                 date_str = ""
-                if date_elem:
-                    date_str = date_elem.get('datetime') or date_elem.get_text(strip=True)
+                
+                # 1. Try <time datetime> attribute
+                time_elem = element.find('time')
+                if time_elem and time_elem.get('datetime'):
+                    date_str = time_elem.get('datetime')
+                
+                # 2. Try meta property article:published_time
+                if not date_str:
+                    meta_elem = element.find('meta', property='article:published_time')
+                    if meta_elem:
+                        date_str = meta_elem.get('content', '')
+                
+                # 3. Try visible date text in time or date-related elements
+                if not date_str:
+                    date_elem = element.find(['time', 'span'], class_=re.compile(r'date|time'))
+                    if date_elem:
+                        date_str = date_elem.get_text(strip=True)
+                
+                # Parse the date safely
+                parsed_date = self._parse_date_safe(date_str)
                 
                 # Extract abstract/summary
                 abstract_elem = element.find(['p', 'div'], class_=re.compile(r'abstract|summary|description'))
@@ -386,7 +463,7 @@ class OpenAICrawler(BaseCrawler):
                 paper = self._create_item(
                     title=title,
                     url=url,
-                    date=date_str,
+                    date=parsed_date,
                     summary=abstract,
                     source="OpenAI Research",
                     tags=["openai", "research", "paper"]

@@ -8,17 +8,24 @@ An intelligent web crawler that gathers the latest AI/ML research papers, blog p
 # Install dependencies
 pip install -r requirements.txt
 
-# Run the crawler
-python run_crawler.py
+# Run the crawler (choose one):
+# Option 1: As a module
+python -m src
+
+# Option 2: After installing with pip
+pip install -e .
+ai-ml-crawler
 ```
 
 ## 📁 Project Structure
 
 ```
-Web_Crawling_Backup/
-├── run_crawler.py          # Main launcher script
-├── requirements.txt        # Python dependencies
-├── src/                   # Source code
+ai-ml-content-crawler/
+├── pyproject.toml         # Project configuration
+├── requirements.txt       # Python dependencies
+├── src/                   # Source code (ai_ml_crawler package)
+│   ├── __main__.py       # Module entry point
+│   ├── cli.py            # CLI entry point
 │   ├── main.py           # Main crawler logic
 │   ├── config.py         # Configuration settings
 │   ├── crawlers/         # Individual crawler modules

@@ -12,11 +12,11 @@ import os
 from pathlib import Path
 from urllib.parse import urlparse
 
-from config import CrawlerConfig
-from utils.validation import InputValidator, URLRedirectValidator, ValidationError
-from utils.error_handler import ErrorHandler, NetworkError, ParseError, ErrorLevel, AntiDetectionError
-from utils.anti_detection import AntiDetectionManager
-from utils.caching import SmartCache, RateLimitCache
+from ai_ml_crawler.config import CrawlerConfig
+from ai_ml_crawler.utils.validation import InputValidator, URLRedirectValidator, ValidationError
+from ai_ml_crawler.utils.error_handler import ErrorHandler, NetworkError, ParseError, ErrorLevel, AntiDetectionError
+from ai_ml_crawler.utils.anti_detection import AntiDetectionManager
+from ai_ml_crawler.utils.caching import SmartCache, RateLimitCache
 
 
 class BaseCrawler(ABC):
@@ -140,8 +140,14 @@ class BaseCrawler(ABC):
         
         return None
     
+    
     def _is_recent(self, date_str: str, date_format: str = "%Y-%m-%d") -> bool:
         """Check if date is within the configured time window - strict version"""
+        
+        # Handle "Unknown" dates - include them to avoid filtering out content
+        if date_str == "Unknown":
+            return True  # Include unknown dates to avoid losing content
+        
         try:
             if isinstance(date_str, datetime):
                 post_date = date_str.replace(tzinfo=None)
@@ -155,7 +161,7 @@ class BaseCrawler(ABC):
             print(f"Could not parse date {date_str}: {e}")
             return False  # EXCLUDE if we can't parse the date
     
-    def _create_item(self, title: str, url: str, date: str, summary: str = "", 
+    def _create_item(self, title: str, url: str, date: Optional[str], summary: str = "", 
                     content: str = "", tags: List[str] = None, source: str = "") -> Dict[str, Any]:
         """Create standardized content item with validation"""
         try:
@@ -165,27 +171,30 @@ class BaseCrawler(ABC):
             validated_summary = summary[:1000] if summary else ""
             validated_tags = tags or []
             
+            # Use provided date or default to "Unknown"
+            processed_date = date if date else "Unknown"
+            
             return {
                 'title': title.strip()[:500],  # Limit title length
                 'url': validated_url,
-                'date': date,
+                'date': processed_date,
                 'summary': validated_summary,
                 'content': validated_content,
                 'tags': validated_tags,
                 'source': source,
-                'crawled_at': datetime.now().isoformat()
+                'crawled_at': datetime.utcnow().isoformat()
             }
         except Exception as e:
             # Return minimal safe item for any errors
             return {
                 'title': title.strip()[:500] if title else 'Unknown',
                 'url': url,  # Keep original for debugging
-                'date': date,
+                'date': date if date else "Unknown",
                 'summary': summary[:1000] if summary else '',
                 'content': content[:50000] if content else '',
                 'tags': tags or [],
                 'source': source,
-                'crawled_at': datetime.now().isoformat(),
+                'crawled_at': datetime.utcnow().isoformat(),
                 'error': str(e)
             }
     

@@ -6,11 +6,12 @@
 Working with the AI/ML Content Crawler project located at `/home/kevin/Web_Crawling_Backup`
 
 ### Key Information
-- **Main execution file**: `run_crawler.py`
-- **Command to run**: `python run_crawler.py`
+- **Main execution**: `python -m src` or `ai-ml-crawler` (after pip install)
+- **Command to run**: `python -m src` or `pip install -e . && ai-ml-crawler`
 - **Output location**: `output/` folder (markdown files with timestamp)
 - **Python version**: 3.12.7
 - **Environment**: Ubuntu Linux, bash shell
+- **Package structure**: `src/` directory with proper Python package layout
 
 ### Project Status
 ✅ **Completed Tasks:**
@@ -196,6 +197,104 @@ Working with the AI/ML Content Crawler project located at `/home/kevin/Web_Crawl
 - Can be imported and used by any crawler for consistent date parsing
 - Comprehensive test coverage ensures reliability
 - Follows the project's existing patterns and conventions
+
+### Task Completion - Package Standardization (2025-01-12)
+
+✅ **COMPLETED: Step 4 - Standardize package layout under `src/ai_ml_crawler/`**
+
+**Changes made:**
+1. **Created new directory structure**:
+   - Created `src/ai_ml_crawler/` directory
+   - Moved all content from `src/` to `src/ai_ml_crawler/`
+   - Confirmed `__init__.py` already exists in the new directory
+
+2. **Fixed import paths**:
+   - Updated imports in `main.py`: Changed from relative imports to absolute imports with `ai_ml_crawler` prefix
+   - Updated imports in `base_crawler.py`: Fixed all utils and config imports
+   - Updated imports in `content_filter.py`: Changed config import
+   - Updated imports in `output_manager.py`: Changed config import
+   - Updated imports in `cli.py`: Fixed import and removed sys.path manipulation
+   - Removed unnecessary sys.path manipulation from `main.py`
+
+3. **Updated package configuration**:
+   - Modified `pyproject.toml`:
+     - Changed script entry point from `src.cli:main` to `ai_ml_crawler.cli:main`
+     - Updated package list to use `ai_ml_crawler` instead of `src`
+     - Updated package-data configuration
+
+4. **Verified relative imports**:
+   - Crawler files using relative imports within the package (like `from .base_crawler`) were left as-is, which is correct
+   - These internal package imports don't need to be changed
+
+**Files Modified:**
+- `src/ai_ml_crawler/main.py` - Updated all imports and removed sys.path manipulation
+- `src/ai_ml_crawler/crawlers/base_crawler.py` - Updated utils and config imports
+- `src/ai_ml_crawler/utils/content_filter.py` - Updated config import
+- `src/ai_ml_crawler/utils/output_manager.py` - Updated config import
+- `src/ai_ml_crawler/cli.py` - Updated imports
+- `pyproject.toml` - Updated package configuration
+
+**Result:**
+The package has been successfully standardized under `src/ai_ml_crawler/` with all import paths updated to use the new package name. The package can now be properly installed and imported as `ai_ml_crawler`.
+
+**Next Steps:**
+The standardization is complete. The package structure now follows Python best practices with a proper namespace package that can be installed via pip.
+
+### Task Completion - Markdown Naming Convention Verification (2025-01-12)
+
+✅ **COMPLETED: Step 3 - Consolidate executable entry points**
+
+**Changes made:**
+1. **Created pyproject.toml**:
+   - Modern Python packaging configuration
+   - Defined `ai-ml-crawler` console script entry point
+   - Package metadata with dependencies and project info
+   - Configured setuptools to map `src` directory as the package
+
+2. **Created CLI structure**:
+   - `src/cli.py` - Main CLI entry point with the `main()` function
+   - `src/__main__.py` - Module entry point for `python -m src`
+   - `src/__init__.py` - Package initialization file
+
+3. **Updated main.py**:
+   - Removed CLI entry code from the bottom
+   - Kept it as a pure module for crawler logic
+   - Added comment indicating CLI moved to cli.py
+
+4. **Removed run_crawler.py**:
+   - Deleted the old launcher script
+   - All functionality moved to proper package structure
+
+5. **Updated documentation**:
+   - README.md now shows two ways to run:
+     - `python -m src` (module execution)
+     - `pip install -e . && ai-ml-crawler` (console script)
+   - Updated project structure to reflect new layout
+   - Fixed import references
+
+**Test Results**:
+- ✅ Successfully tested `python -m src` - crawler ran and produced output
+- ✅ All imports working correctly
+- ✅ Crawler executed fully and generated results
+
+**New Usage**:
+```bash
+# Option 1: Run as module
+python -m src
+
+# Option 2: Install and use console script
+pip install -e .
+ai-ml-crawler
+```
+
+**Files created/modified:**
+- `pyproject.toml` - Created package configuration
+- `src/__init__.py` - Created package init
+- `src/__main__.py` - Created module entry point
+- `src/cli.py` - Created CLI entry point
+- `src/main.py` - Modified to remove CLI code
+- `README.md` - Updated documentation
+- `run_crawler.py` - Removed
 
 ### Task Completion - Markdown Naming Convention Verification (2025-01-12)
 

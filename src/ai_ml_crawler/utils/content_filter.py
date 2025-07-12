@@ -6,7 +6,7 @@ import re
 from typing import List, Dict, Any, Set
 from datetime import datetime, timedelta
 
-from config import CrawlerConfig
+from ai_ml_crawler.config import CrawlerConfig
 
 
 class ContentFilter:

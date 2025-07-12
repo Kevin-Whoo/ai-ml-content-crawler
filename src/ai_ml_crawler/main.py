@@ -6,28 +6,23 @@ Enhanced AI/ML Content Crawler with Security & Anti-Detection
 import sys
 import os
 from pathlib import Path
-
-# Add src directory to Python path for imports
-src_dir = Path(__file__).parent
-sys.path.insert(0, str(src_dir))
-
 import asyncio
 import json
 from datetime import datetime
 from typing import List, Dict, Any
 
-from config import CrawlerConfig, SOURCES_CONFIG
-from crawlers.anthropic_crawler import AnthropicCrawler
-from crawlers.openai_crawler import OpenAICrawler
-from crawlers.meta_crawler import MetaCrawler
-from crawlers.github_crawler import GitHubCrawler
-from crawlers.huggingface_crawler import HuggingFaceCrawler
-from crawlers.medium_crawler import MediumCrawler
-from crawlers.google_scholar_crawler import GoogleScholarCrawler
-from crawlers.arxiv_crawler import ArxivCrawler
+from ai_ml_crawler.config import CrawlerConfig, SOURCES_CONFIG
+from ai_ml_crawler.crawlers.anthropic_crawler import AnthropicCrawler
+from ai_ml_crawler.crawlers.openai_crawler import OpenAICrawler
+from ai_ml_crawler.crawlers.meta_crawler import MetaCrawler
+from ai_ml_crawler.crawlers.github_crawler import GitHubCrawler
+from ai_ml_crawler.crawlers.huggingface_crawler import HuggingFaceCrawler
+from ai_ml_crawler.crawlers.medium_crawler import MediumCrawler
+from ai_ml_crawler.crawlers.google_scholar_crawler import GoogleScholarCrawler
+from ai_ml_crawler.crawlers.arxiv_crawler import ArxivCrawler
 # IEEE crawler removed per user request
-from utils.content_filter import ContentFilter
-from utils.output_manager import OutputManager
+from ai_ml_crawler.utils.content_filter import ContentFilter
+from ai_ml_crawler.utils.output_manager import OutputManager
 
 
 class MasterCrawler:
@@ -166,31 +161,4 @@ def setup_enhanced_config():
     return config
 
 
-if __name__ == "__main__":
-    print("🤖 Enhanced AI/ML Content Crawler")
-    print("=" * 50)
-    print(f"⏰ Started at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    print()
-    
-    # Setup enhanced configuration
-    config = setup_enhanced_config()
-    
-    print("🛡️ Enhanced Security Features:")
-    print("  🔒 Input validation & SSRF protection: ✅")
-    print("  🥷 Anti-detection browser profiles: ✅")
-    print("  💾 Smart caching: ✅")
-    print("  ⚡ Rate limiting awareness: ✅")
-    print(f"  🔄 Proxy rotation: {'✅' if config.enable_proxy_rotation else '❌'}")
-    print(f"  ⏱️ Request delay: {config.request_delay}s")
-    print()
-    
-    try:
-        crawler = MasterCrawler(config)
-        crawler.run()
-        
-        print(f"\n⏰ Completed at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        
-    except KeyboardInterrupt:
-        print("\n⏹️ Crawling interrupted by user")
-    except Exception as e:
-        print(f"\n❌ Error: {str(e)}")
+# CLI entry point moved to cli.py

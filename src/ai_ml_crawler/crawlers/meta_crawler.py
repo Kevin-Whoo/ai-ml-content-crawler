@@ -9,9 +9,10 @@ from bs4 import BeautifulSoup
 import re
 
 from .base_crawler import BaseCrawler
+from .date_extractor import DateExtractionMixin
 
 
-class MetaCrawler(BaseCrawler):
+class MetaCrawler(BaseCrawler, DateExtractionMixin):
     """Crawler for Meta AI blog and research content"""
     
     async def crawl(self) -> List[Dict[str, Any]]:
@@ -64,11 +65,8 @@ class MetaCrawler(BaseCrawler):
                     if url.startswith('/'):
                         url = 'https://ai.meta.com' + url
                     
-                    # Extract date
-                    date_elem = element.find(['time', 'span'], class_=re.compile(r'date|time'))
-                    date_str = ""
-                    if date_elem:
-                        date_str = date_elem.get('datetime') or date_elem.get_text(strip=True)
+                    # Extract date using proper date extraction
+                    date_str = self.extract_publication_date(element, url)
                     
                     # Extract summary
                     summary_elem = element.find(['p', 'div'], class_=re.compile(r'summary|excerpt|description'))
@@ -106,7 +104,7 @@ class MetaCrawler(BaseCrawler):
             post = self._create_item(
                 title=title,
                 url=url,
-                date=datetime.now().isoformat(),
+                date="Unknown",
                 summary=f"Meta's latest developments in {title.split(':')[0]}",
                 source="Meta AI Blog",
                 tags=["meta", "blog", "recent"]
@@ -147,11 +145,8 @@ class MetaCrawler(BaseCrawler):
                 if url.startswith('/'):
                     url = 'https://ai.meta.com' + url
                 
-                # Extract date
-                date_elem = element.find(['time', 'span'], class_=re.compile(r'date|time'))
-                date_str = ""
-                if date_elem:
-                    date_str = date_elem.get('datetime') or date_elem.get_text(strip=True)
+                # Extract date using proper date extraction
+                date_str = self.extract_publication_date(element, url)
                 
                 # Extract abstract/summary
                 abstract_elem = element.find(['p', 'div'], class_=re.compile(r'abstract|summary|description'))

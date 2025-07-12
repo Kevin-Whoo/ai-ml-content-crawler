@@ -9,9 +9,10 @@ from bs4 import BeautifulSoup, Tag
 import re
 
 from .base_crawler import BaseCrawler
+from .date_extractor import DateExtractionMixin
 
 
-class AnthropicCrawler(BaseCrawler):
+class AnthropicCrawler(BaseCrawler, DateExtractionMixin):
     """Crawler for Anthropic blog and research content"""
 
     async def crawl(self) -> List[Dict[str, Any]]:
@@ -52,7 +53,7 @@ class AnthropicCrawler(BaseCrawler):
                 entry = self._create_item(
                     title=title,
                     url=url,
-                    date=datetime.now().isoformat(),
+                date="Unknown",
                     summary=f"Anthropic's work on {title.split(':')[0]} represents significant progress in AI development.",
                     source="Anthropic Research",
                     tags=["anthropic", "research", "notable"]
@@ -97,8 +98,8 @@ class AnthropicCrawler(BaseCrawler):
                 if item_url.startswith('/'):
                     item_url = 'https://www.anthropic.com' + item_url
 
-                date_elem = element.find(['time', 'span'], class_=re.compile(r'date|time'))
-                date_str = date_elem.get('datetime') or date_elem.get_text(strip=True) if date_elem else ""
+                # Extract date using proper date extraction
+                date_str = self.extract_publication_date(element, item_url)
 
                 summary = self._extract_summary(element, summary_selector, summary_class_re)
 
