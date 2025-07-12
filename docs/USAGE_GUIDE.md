@@ -1,10 +1,10 @@
-# How to Run the Enhanced AI/ML Web Crawler
+# AI/ML Web Crawler Usage Guide
 
 ## 🚀 Quick Start
 
 ### 1. Navigate to Project Directory
 ```bash
-cd /home/kevin/Web_Crawling
+cd /path/to/ai-ml-content-crawler
 ```
 
 ### 2. Install Dependencies
@@ -14,7 +14,12 @@ pip install -r requirements.txt
 
 ### 3. Run the Crawler
 ```bash
-python main.py
+# Option 1: As a module
+python -m src
+
+# Option 2: After installing with pip
+pip install -e .
+ai-ml-crawler
 ```
 
 ### 4. View Results
@@ -78,15 +83,17 @@ The crawler generates a comprehensive markdown report with:
 ## 🔧 Customization Options
 
 ### Change Time Range:
-Edit `main.py` line 137:
+Edit the configuration in your code:
 ```python
+from ai_ml_crawler.config import CrawlerConfig
+
+config = CrawlerConfig()
 config.max_days_back = 365  # 1 year
 ```
 
 ### Change Max Results:
-Edit `config.py` line 51:
 ```python
-max_results_per_source: int = 50  # More results
+config.max_results_per_source = 50  # More results
 ```
 
 ### Enable Proxy:
