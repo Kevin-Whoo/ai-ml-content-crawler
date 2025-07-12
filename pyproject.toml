@@ -78,7 +78,7 @@ crawl-ai-ml = "ai_ml_crawler.main:main"
 
 [tool.setuptools]
 package-dir = {"": "src"}
-packages = {find = {where = ["src"], include = ["ai_ml_crawler*"]}}
+packages = ["ai_ml_crawler"]
 
 [tool.setuptools.package-data]
 ai_ml_crawler = ["py.typed"]

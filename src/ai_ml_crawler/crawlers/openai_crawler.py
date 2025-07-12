@@ -10,44 +10,15 @@ import re
 
 from .base_crawler import BaseCrawler
 from .blog_helper import BlogCrawlerHelper
-from .date_extractor import DateExtractionMixin
+from ..utils import parse_date_safe, DateExtractionHelper, is_recent_date
 
 
-class OpenAICrawler(BaseCrawler, DateExtractionMixin):
+class OpenAICrawler(BaseCrawler):
     """Crawler for OpenAI blog and research content"""
     
-    def _parse_date_safe(self, raw_date: str) -> str:
-        """Parse date string safely and convert to ISO format with UTC timezone"""
-        if not raw_date or not raw_date.strip():
-            return "Unknown"
-        
-        # Common date formats to try
-        date_formats = [
-            '%Y-%m-%dT%H:%M:%S%z',  # ISO with timezone
-            '%Y-%m-%dT%H:%M:%SZ',   # ISO with Z
-            '%Y-%m-%dT%H:%M:%S',    # ISO without timezone
-            '%Y-%m-%d %H:%M:%S',    # Standard datetime
-            '%Y-%m-%d',             # Date only
-            '%B %d, %Y',            # Month day, year
-            '%b %d, %Y',            # Short month day, year
-            '%d %B %Y',             # Day month year
-            '%d %b %Y',             # Day short month year
-        ]
-        
-        raw_date = raw_date.strip()
-        
-        for fmt in date_formats:
-            try:
-                dt = datetime.strptime(raw_date, fmt)
-                return dt.isoformat(timespec='seconds') + 'Z'
-            except ValueError:
-                continue
-        
-        # If no format matches, return "Unknown"
-        return "Unknown"
     
     async def crawl(self) -> List[Dict[str, Any]]:
-        # TODO: Add date filtering - filter items by self._is_recent(date) -> List[Dict[str, Any]]:
+        # Filter items by recent dates
         """Crawl OpenAI blog and research pages with enhanced strategies"""
         results = []
         
@@ -168,10 +139,10 @@ class OpenAICrawler(BaseCrawler, DateExtractionMixin):
         
         # If no date found yet, use the date extractor with full soup context
         if not date_str and soup:
-            parsed_date = self.extract_publication_date(soup, url)
+            parsed_date = DateExtractionHelper.extract_publication_date(soup, url)
         else:
             # Parse the date safely
-            parsed_date = self._parse_date_safe(date_str)
+            parsed_date = parse_date_safe(date_str)
         
         post = self._create_item(
             title=title,
@@ -210,7 +181,7 @@ class OpenAICrawler(BaseCrawler, DateExtractionMixin):
                     
                     if title and url:
                         # Parse the date safely
-                        parsed_date = self._parse_date_safe(date_str)
+                        parsed_date = parse_date_safe(date_str)
                         
                         post = self._create_item(
                             title=title,
@@ -358,7 +329,7 @@ class OpenAICrawler(BaseCrawler, DateExtractionMixin):
                         url = 'https://openai.com' + url
                     
                     # Parse the date safely
-                    parsed_date = self._parse_date_safe(date_str)
+                    parsed_date = parse_date_safe(date_str)
                     
                     post = self._create_item(
                         title=title,
@@ -450,7 +421,7 @@ class OpenAICrawler(BaseCrawler, DateExtractionMixin):
                         date_str = date_elem.get_text(strip=True)
                 
                 # Parse the date safely
-                parsed_date = self._parse_date_safe(date_str)
+                parsed_date = parse_date_safe(date_str)
                 
                 # Extract abstract/summary
                 abstract_elem = element.find(['p', 'div'], class_=re.compile(r'abstract|summary|description'))

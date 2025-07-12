@@ -6,7 +6,7 @@ import asyncio
 import aiohttp
 from abc import ABC, abstractmethod
 from typing import List, Dict, Any, Optional
-from datetime import datetime, timedelta
+from datetime import datetime
 import time
 import os
 from pathlib import Path
@@ -17,6 +17,7 @@ from ai_ml_crawler.utils.validation import InputValidator, URLRedirectValidator,
 from ai_ml_crawler.utils.error_handler import ErrorHandler, NetworkError, ParseError, ErrorLevel, AntiDetectionError
 from ai_ml_crawler.utils.anti_detection import AntiDetectionManager
 from ai_ml_crawler.utils.caching import SmartCache, RateLimitCache
+from ai_ml_crawler.utils import is_recent_date
 
 
 class BaseCrawler(ABC):
@@ -142,24 +143,8 @@ class BaseCrawler(ABC):
     
     
     def _is_recent(self, date_str: str, date_format: str = "%Y-%m-%d") -> bool:
-        """Check if date is within the configured time window - strict version"""
-        
-        # Handle "Unknown" dates - include them to avoid filtering out content
-        if date_str == "Unknown":
-            return True  # Include unknown dates to avoid losing content
-        
-        try:
-            if isinstance(date_str, datetime):
-                post_date = date_str.replace(tzinfo=None)
-            else:
-                post_date = datetime.fromisoformat(date_str.replace('Z', ''))
-
-            cutoff_date = datetime.now() - timedelta(days=self.config.max_days_back)
-            return post_date >= cutoff_date
-        except (ValueError, TypeError) as e:
-            # Be strict - exclude content when date parsing fails
-            print(f"Could not parse date {date_str}: {e}")
-            return False  # EXCLUDE if we can't parse the date
+        """Check if date is within the configured time window"""
+        return is_recent_date(date_str, self.config.max_days_back)
     
     def _create_item(self, title: str, url: str, date: Optional[str], summary: str = "", 
                     content: str = "", tags: List[str] = None, source: str = "") -> Dict[str, Any]:
