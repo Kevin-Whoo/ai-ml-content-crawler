@@ -29,7 +29,230 @@ Working with the AI/ML Content Crawler project located at `/home/kevin/Web_Crawl
 - Successful Sources: 7/8
 - Top sources: Google Scholar (25), Arxiv (25), Medium (9), OpenAI (8), Meta (5)
 
+### Task Completion - Date Handling Requirements (2025-01-12)
+
+✅ **COMPLETED: Step 1 - Establish date-handling requirements and regression criteria**
+
+**Analysis completed:**
+- Reviewed current crawler output and identified date extraction issues
+- Defined "actual publication/creation date" for each source type
+- Created comprehensive regression checklist for QA verification
+- Documented in `DATE_HANDLING_REQUIREMENTS.md`
+
+**Key findings:**
+- GitHub & ArXiv crawlers: ✅ Working correctly (use API dates)
+- OpenAI, Meta, Anthropic crawlers: ❌ Using current timestamp fallback
+- Root cause: `datetime.now().isoformat()` fallback in blog crawlers
+- Solution: Extract actual publication dates from HTML metadata
+
+**Deliverables:**
+- `DATE_HANDLING_REQUIREMENTS.md` - Complete specification document
+- QA regression checklist with test cases
+- Specific code locations to fix (lines identified)
+- Expected date formats for each source type
+
 ### Next Steps
 - [ ] Implement date filtering in all crawlers (critical)
 - [ ] Configure rate limiting properly
 - [ ] Optimize cache eviction for scalability
+- [ ] Fix date extraction in blog crawlers (OpenAI, Meta, Anthropic)
+- [ ] Implement proper HTML date extraction methods
+
+### Task Completion - GitHub Crawler Refactoring (2025-01-12)
+
+✅ **COMPLETED: Step 2 - Refactor GitHub crawler to use created_at**
+
+**Changes made to `src/crawlers/github_crawler.py`:**
+1. **Date field change**: Replaced `date=repo['updated_at']` with `date=repo['created_at']` on line 121
+2. **Filtering logic**: Changed `_is_recent()` to check `created_at` instead of `updated_at` (line 95-96)
+3. **Metadata preservation**: Added `'last_updated': repo['updated_at']` to metadata (line 136)
+4. **Comment update**: Updated comment from "Check if repository was updated recently" to "Check if repository was created recently"
+
+**Unit tests created** (`tests/test_github_crawler.py`):
+- `test_created_at_propagation`: Verifies `created_at` is properly set as the `date` field
+- `test_is_recent_uses_created_at`: Confirms filtering now uses `created_at` instead of `updated_at`
+- `test_old_created_at_filtered_out`: Ensures old repositories are filtered out based on creation date
+- `test_multiple_repos_with_mixed_dates`: Tests multiple repositories with different creation dates
+
+**Test results**: All 4 tests passing ✅
+
+**Impact**: 
+- GitHub crawler now properly tracks repository creation dates
+- Preserves update information in `last_updated` metadata
+- Filtering logic correctly identifies recently created repositories
+- Comprehensive test coverage ensures the refactoring works correctly
+
+**Files modified:**
+- `src/crawlers/github_crawler.py` - Core refactoring
+- `tests/test_github_crawler.py` - Unit tests (created)
+
+### Task Completion - Date Extraction Helper for Meta and Anthropic Crawlers (2025-01-12)
+
+✅ **COMPLETED: Step 4 - Patch Meta and Anthropic crawlers for proper publication dates**
+
+**Created comprehensive date extraction system:**
+1. **Date Extraction Helper** (`src/crawlers/date_extractor.py`):
+   - `DateExtractor` class with multiple extraction methods:
+     - `_extract_from_time_element()` - Extracts from `<time datetime="...">` elements
+     - `_extract_from_meta_tags()` - Extracts from `<meta property="og:updated_time">` and similar tags
+     - `_extract_from_json_ld()` - Extracts from JSON-LD structured data
+     - `_extract_from_url()` - Extracts from URL date patterns (e.g., `/2024/03/15/`)
+     - `_extract_from_content_patterns()` - Extracts from content text patterns
+   - `DateExtractionMixin` class for easy integration with crawlers
+   - Proper UTC ISO date parsing and normalization
+   - Rejects current timestamps and returns "Unknown" for invalid dates
+
+2. **Base Crawler Updates** (`src/crawlers/base_crawler.py`):
+   - Added `_process_date()` method to filter out current timestamps
+   - Modified `_create_item()` to use processed dates instead of raw input
+   - Updated `_is_recent()` to handle "Unknown" dates gracefully
+
+3. **Meta Crawler Updates** (`src/crawlers/meta_crawler.py`):
+   - Integrated `DateExtractionMixin` for proper date extraction
+   - Replaced `datetime.now().isoformat()` fallback with proper date extraction
+   - Changed fallback notable topics to use "Unknown" instead of current timestamp
+
+4. **Anthropic Crawler Updates** (`src/crawlers/anthropic_crawler.py`):
+   - Integrated `DateExtractionMixin` for proper date extraction
+   - Replaced empty date strings with proper extraction logic
+   - Changed fallback notable entries to use "Unknown" instead of current timestamp
+
+**Comprehensive Unit Tests** (`tests/crawlers/test_date_extraction.py`):
+- `test_extract_from_time_element` - Tests `<time datetime="...">` extraction
+- `test_extract_from_meta_tags` - Tests `<meta property="og:updated_time">` extraction
+- `test_extract_from_json_ld` - Tests JSON-LD structured data extraction
+- `test_extract_from_url` - Tests URL pattern extraction (e.g., `/2024/03/15/`)
+- `test_extract_from_content_patterns` - Tests content text pattern extraction
+- `test_no_date_found_returns_unknown` - Ensures "Unknown" is returned when no date found
+- `test_current_timestamp_rejected` - Ensures current timestamps are rejected
+- `test_is_recent_date` - Tests date recency checking
+- `test_anthropic_blog_post_example` - Real Anthropic blog post structure test
+- `test_meta_ai_blog_post_example` - Real Meta AI blog post structure test
+
+**Test Results**: All 10 tests passing ✅
+
+**Key Improvements:**
+- ✅ Proper `<time>` element extraction with datetime attributes
+- ✅ Meta tag extraction (`og:updated_time`, `article:published_time`, etc.)
+- ✅ JSON-LD structured data extraction for modern websites
+- ✅ URL pattern extraction for date-based URLs
+- ✅ Content pattern extraction for inline dates
+- ✅ UTC ISO date parsing and normalization
+- ✅ Current timestamp rejection (no more `2025-01-12T...` placeholders)
+- ✅ "Unknown" fallback instead of misleading dates
+- ✅ Comprehensive unit tests with saved HTML snippets
+
+**Files created/modified:**
+- `src/crawlers/date_extractor.py` - New date extraction helper (created)
+- `src/crawlers/base_crawler.py` - Updated date processing logic
+- `src/crawlers/meta_crawler.py` - Integrated date extraction
+- `src/crawlers/anthropic_crawler.py` - Integrated date extraction
+- `tests/crawlers/test_date_extraction.py` - Comprehensive unit tests (created)
+- `tests/crawlers/__init__.py` - Test package init (created)
+- `tests/__init__.py` - Test package init (created)
+
+**Expected Results:**
+- Meta and Anthropic crawlers now extract actual publication dates from HTML
+- No more current timestamp fallbacks (`2025-01-12T...`)
+- Proper "Unknown" handling for missing dates
+- Comprehensive test coverage ensures reliability
+- Ready for QA regression testing per `DATE_HANDLING_REQUIREMENTS.md`
+
+### Task Completion - Date Utilities & Shared Tests (2025-01-12)
+
+✅ **COMPLETED: Step 7 - Add helper utilities & shared tests for date parsing**
+
+**Created comprehensive date utility system:**
+1. **Date Utils Module** (`src/utils/date_utils.py`):
+   - `parse_iso_or_fuzzy(str) -> str|None` - Main parsing function returning ISO Z string
+   - `to_utc_iso(dt)` - Converts datetime objects/strings to UTC ISO format
+   - Comprehensive support for GitHub API dates, blog HTML, JSON-LD, and URL patterns
+   
+2. **Comprehensive Test Suite** (`tests/utils/test_date_utils.py`):
+   - **41 tests total** covering all major scenarios
+   - **GitHub API dates**: Tests `created_at` and `updated_at` format parsing
+   - **Blog HTML elements**: Tests `<time datetime="...">` extraction
+   - **Meta tags**: Tests `article:published_time`, `publishdate`, etc.
+   - **JSON-LD**: Tests structured data extraction from blog posts
+   - **URL patterns**: Tests `/2024/05/13/` and `2024-05-13-title` patterns
+   - **Fuzzy parsing**: Tests "May 13, 2024" and "05/13/2024" formats
+   - **Fallback scenarios**: Tests "Unknown" handling when no date found
+   - **Edge cases**: Tests malformed dates, empty inputs, timezone conversions
+   
+**Key Features:**
+- ✅ GitHub created_at format: `2025-07-12T13:20:40Z` → `2025-07-12T13:20:40Z`
+- ✅ Blog time elements: `<time datetime="2024-05-13T10:30:00Z">` → `2024-05-13T10:30:00Z`
+- ✅ Meta tags: `<meta property="article:published_time" content="2024-05-13">` → `2024-05-13T00:00:00Z`
+- ✅ JSON-LD: `{ "datePublished": "2024-05-13T10:30:00Z"}` → `2024-05-13T10:30:00Z`
+- ✅ URL patterns: `/2024/05/13/gpt-4o` → `2024-05-13T00:00:00Z`
+
+**Test Results**: All 41 tests passing ✅
+
+**Files created:**
+- `src/utils/date_utils.py` - Core date parsing utilities
+- `tests/utils/test_date_utils.py` - Comprehensive test suite (41 tests)
+
+**Integration Ready:**
+- Can be imported and used by any crawler for consistent date parsing
+- Comprehensive test coverage ensures reliability
+- Follows the project's existing patterns and conventions
+
+### Task Completion - Markdown Naming Convention Verification (2025-01-12)
+
+✅ **COMPLETED: Verified output markdown naming convention**
+
+**Analysis Results:**
+- **Naming Pattern**: `AI_ML_Resources_YYYYMMDD_HHMMSS.md`
+- **Implementation**: Set in `src/utils/output_manager.py` line 40
+- **Timestamp Format**: UTC timestamp in format YYYYMMDD_HHMMSS
+- **Total Files Checked**: 18 markdown files in output directory
+- **Consistency**: ✅ All 18 files follow the exact same pattern
+
+**Verified Files:**
+- All markdown files match pattern: `^AI_ML_Resources_[0-9]{8}_[0-9]{6}\.md$`
+- Examples: `AI_ML_Resources_20250712_225244.md`, `AI_ML_Resources_20250712_210824.md`
+- Files are chronologically sortable due to timestamp format
+
+**Other Output Files (from code):**
+- CSV: `ai_ml_content_YYYYMMDD_HHMMSS.csv` (lowercase prefix)
+- JSON: `ai_ml_content_YYYYMMDD_HHMMSS.json` (lowercase prefix)
+
+**Conclusion**: The markdown naming convention is correct, consistent, and follows best practices. No changes needed.
+
+### Task Completion - Remove Obsolete & Generated Files (2025-01-13)
+
+✅ **COMPLETED: Step 2 - Prune redundant or obsolete files**
+
+**Files Removed:**
+1. **Temporary/illustrative files**:
+   - `apply_fixes.py` - Removed (temporary fix script)
+   - `DATE_FILTERING_EXAMPLE.py` - Removed (example code)
+   - `test_configuration.py` - Removed (temporary test file)
+
+2. **Duplicate documentation**:
+   - `docs/README.md` - Removed (duplicate of root README)
+   - Root `README.md` kept and already references docs folder
+
+3. **Generated artifacts**:
+   - **Output files** (20 files): All markdown reports removed from `output/`
+   - **Cache files** (33 files): All cached web content removed from `cache/`
+   - **Python cache** (20 files): All `__pycache__` directories and `.pyc` files untracked
+
+**Additional Changes:**
+- Created comprehensive `.gitignore` file to prevent re-tracking:
+  - Python cache files (`__pycache__/`, `*.pyc`)
+  - Virtual environments (`venv/`, `env/`)
+  - IDE files (`.vscode/`, `.idea/`)
+  - Project generated files (`output/`, `cache/`)
+  - Test and temporary files
+
+**Impact:**
+- ✅ Removed ~17,400 lines of generated/cached content
+- ✅ Repository is now cleaner and focused on source code
+- ✅ Future generated files will be automatically ignored
+- ✅ Branch pushed as `remove-obsolete-files`
+
+**PR Creation:**
+- Branch: `remove-obsolete-files`
+- Title: "Remove obsolete & generated files"
+- URL: https://github.com/Kevin-Whoo/ai-ml-content-crawler/pull/new/remove-obsolete-files
