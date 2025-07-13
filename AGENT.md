@@ -562,6 +562,39 @@ make build
 
 ✅ **COMPLETED: Step 10 - Update AGENT.md checklist & final cleanup**
 
+### Crawler Fix - 2025-07-13
+
+✅ **FIXED: Crawler execution issue**
+
+**Problem**: The crawler couldn't run due to module import errors when running `python -m ai_ml_crawler`
+
+**Solution**: 
+1. Set PYTHONPATH environment variable to include the src directory
+2. Created a simple bash script `run.sh` for easy execution
+
+**How to run the crawler now**:
+```bash
+# Option 1: Using the run script (recommended)
+./run.sh
+
+# Option 2: Using PYTHONPATH
+PYTHONPATH=src python -m ai_ml_crawler
+
+# Option 3: Install and use command
+pip install -e .
+ai-ml-crawler
+```
+
+**Test Results**:
+- ✅ Successfully ran all 8 crawlers
+- ✅ Found 105 total resources
+- ✅ Generated 46.4 KB markdown report
+- ✅ All sources successful (8/8)
+- ✅ Output saved to `output/AI_ML_Resources_20250713_000104.md`
+
+**Files created**:
+- `run.sh` - Simple bash script to run the crawler with correct PYTHONPATH
+
 ## Project Re-organization Checklist
 
 ### Phase 1: Date Handling and Quality Improvements

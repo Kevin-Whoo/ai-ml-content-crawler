@@ -36,6 +36,8 @@ python -m src
 # Option 2: Use the CLI (if installed)
 ai-ml-crawler
 ```
+# Option 3: Run this complicated one
+PYTHONPATH=/home/kevin/ai-ml-content-crawler/src python -m ai_ml_crawler
 
 ## 📚 Documentation
 
